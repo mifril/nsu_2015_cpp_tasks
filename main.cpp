@@ -1,10 +1,11 @@
 #include <iostream>
+#include "map_allocator.h"
+#include "map.h"
+#include "timer.h"
 
-using namespace std;
-
-int main()
-{
-    cout << "Hello World!" << endl;
+int main() {
+    Map<int, int, std::less<int>, MapAllocator<std::pair<int, int> > > map;
+    std::cout << "Hello World!" << std::endl;
     return 0;
 }
 
