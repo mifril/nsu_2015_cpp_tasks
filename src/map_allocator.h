@@ -28,8 +28,8 @@ public:
         };
         struct Chunk {
             enum {
-                size = 8*1024-16
-            }; //слегка меньше 8K, чтобы кусок памяти умещался в 8К
+                size = 8 * 1024 - 16
+            };
             char mem[size] ;
             Chunk* next;
         };
@@ -78,7 +78,7 @@ public:
             while (n) {
                 Chunk* p = n;
                 n = n->next;
-//                delete p;
+                delete p;
             }
         }
     };

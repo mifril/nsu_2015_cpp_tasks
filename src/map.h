@@ -18,18 +18,13 @@ public:
     typedef Comparator comparator_type;
     typedef typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::iterator iterator;
 
-    Map() {
-        tree = std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>();
-    }
-
+    Map() : tree (std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>())
+    {}
     Map(const Map& other) : tree(other.tree)
     {}
-
-    Map(Map&& other)  {
-        tree = other.tree;
+    Map(Map&& other) : tree(other.tree) {
         other.tree = nullptr;
     }
-
     Map& operator=(const Map& other) {
         if (tree) {
             tree->clear();
@@ -37,12 +32,10 @@ public:
         tree = other.tree;
         return *this;
     }
-
     Map& operator=(Map&& other) {
         std::swap(tree, other.tree);
         return *this;
     }
-
     ~Map() {
         if (tree) {
             clear();
@@ -52,8 +45,7 @@ public:
     inline size_t erase(const Key& key) {
         return tree->erase(key);
     }
-    //inline std::pair<iterator, bool> insert(const Key& key, const Value& value) {
-    inline void insert(const value_type& pair) {
+    inline std::pair<iterator, bool> insert(const value_type& pair) {
         return tree->insert(pair.first, pair.second);
     }
     inline void clear() noexcept {
@@ -66,32 +58,34 @@ public:
         return tree->size();
     }
     inline Value& operator[](const Key& key) {
-        return tree->find(key);
+        std::pair<iterator, bool> insertResult = tree->insert(key);
+        return (*(insertResult.first)).second;
     }
     inline Value& operator[](Key&& key) {
-        return tree->find(std::move(key));
+        Key keyCopy;
+        std::swap(key, keyCopy);
+        std::pair<iterator, bool> insertResult = tree->insert(keyCopy);
+        return (*(insertResult.first)).second;
     }
     inline iterator begin() noexcept {
-        return new iterator(tree);
+        return tree->begin();
     }
     inline iterator end() noexcept {
-        return new iterator(nullptr);
+        return tree->end();
     }
-    inline Value& front() {
+    inline value_type& front() {
         return *(begin());
     }
-    inline Value& back() {
-        Value tmp;
-        for (auto it = begin(); it < end(); ++it) {
-            tmp = *it;
-        }
-        return tmp;
+    //TODO
+    inline value_type& back() {
+//        for (auto it = begin(); it != end(); ++it) {
+//            //tmp = *it;
+//        }
     }
 
     template <class... Args>
     inline std::pair<iterator, bool> emplace(Args&&... args) {
-        iterator it = tree->insert(std::forward(args)...);
-        return new std::pair<iterator, bool>(it, true);
+        return tree->insert(std::forward<Args>(args)...);//emplace(std::forward<Args>(args)...);
     }
 
 private:
