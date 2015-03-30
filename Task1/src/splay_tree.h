@@ -4,66 +4,71 @@
 #include <functional>
 #include <memory>
 
-template <class Key, class Value, class Comparator = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, Value> > >
+template <class Key, class Value, class Comparator = std::less<Key>,
+          class Allocator = std::allocator<std::pair<const Key, Value> > >
 class SplayTree {
 public:
     typedef std::pair<const Key, Value> value_type;
 
 private:
     struct Node {
-        Node* left;
-        Node* right;
-        Node* parent;
-        value_type value;
+        Node* _left;
+        Node* _right;
+        Node* _parent;
+        value_type _value;
 
-        Node(const Key & newKey = Key(), const Value & newValue = Value()) : left(nullptr), right(nullptr), parent(nullptr),
-            value(newKey, newValue)
+        Node(const Key & newKey = Key(), const Value & newValue = Value()) :
+            _left(nullptr), _right(nullptr), _parent(nullptr), _value(newKey, newValue)
         {}
     };
 
 public:
     class TreeIterator : public std::iterator<std::forward_iterator_tag, value_type> {
     public:
-        TreeIterator() : cur(nullptr)
+        TreeIterator() : _cur(nullptr)
         {}
-        TreeIterator(Node* node) : cur(node)
+        TreeIterator(Node* node) : _cur(node)
         {}
-        TreeIterator(SplayTree* tree) : cur(tree->root)
+        TreeIterator(SplayTree* tree) : _cur(tree->_root)
         {}
-        TreeIterator(const TreeIterator& other) : cur(other.cur)
+        TreeIterator(const TreeIterator& other) : _cur(other._cur)
         {}
-        TreeIterator(TreeIterator&& other) : cur(other.cur) {
-            other.cur = nullptr;
+        TreeIterator(TreeIterator&& other) : _cur(other._cur) {
+            other._cur = nullptr;
         }
         TreeIterator& operator=(const TreeIterator& other) {
             if (*this != other) {
-                cur = other.cur;
+                _cur = other._cur;
             }
             return *this;
         }
         TreeIterator& operator=(TreeIterator&& other) {
             if (*this != other) {
-                std::swap(cur, other.cur);
+                std::swap(_cur, other._cur);
             }
             return *this;
         }
         TreeIterator& operator++() {
-            if (!cur) {
+            if (!_cur) {
                 return *this;
             }
-            if (cur->right) {
-                cur = cur->right;
-                while (cur && cur->left) {
-                    cur = cur->left;
+            if (_cur->_right) {
+                _cur = _cur->_right;
+                while (_cur && _cur->_left) {
+                    _cur = _cur->_left;
                 }
             } else {
-                Node* parent = cur->parent;
-                while (parent && cur == parent->right) {
-                    cur = parent;
-                    parent = parent->parent;
-                }
-                if (cur && cur->right != parent) {
-                    cur = parent;
+                Node* parent = _cur->_parent;
+                if (nullptr == parent) {
+                    _cur = nullptr;
+                } else {
+                    while (parent && _cur == parent->_right) {
+                        _cur = parent;
+                        parent = parent->_parent;
+                    }
+                    if (_cur && _cur->_right != parent) {
+                        _cur = parent;
+                    }
                 }
             }
             return *this;
@@ -74,130 +79,145 @@ public:
             return tmp;
         }
         bool operator==(const TreeIterator& other) {
-            return cur == other.cur;
+            return _cur == other._cur;
+        }
+        bool operator==(const TreeIterator& other) const {
+            return _cur == other._cur;
         }
         bool operator!=(const TreeIterator& other) {
-            return cur != other.cur;
+            return _cur != other._cur;
+        }
+        bool operator!=(const TreeIterator& other) const {
+            return _cur != other._cur;
         }
         value_type& operator*() {
-            if (cur) {
-                return cur->value;
+            if (_cur) {
+                return _cur->_value;
             } else {
                 throw new std::out_of_range("Iterator is out of range");
             }
         }
         value_type* operator->() {
-            if (cur) {
-                return &(cur->value);
+            if (_cur) {
+                return &(_cur->_value);
             } else {
                 throw new std::out_of_range("Iterator is out of range");
             }
         }
     private:
-        Node* cur;
+        Node* _cur;
     };
 
     typedef TreeIterator iterator;
     typedef typename Allocator::template rebind<Node>::other allocator_type;
 
-    SplayTree() : root(nullptr), treeSize(0), allocator(), defaultValue()
+    SplayTree() : _root(nullptr), _treeSize(0), _allocator(), _defaultValue()
     {}
-
     ~SplayTree() {
-        if (root) {
+        if (_root) {
             clear();
         }
     }
 
     std::pair<iterator, bool> insert(const Key& key, const Value& value = Value()) {
-        if (root) {
-            root = splay(root, key);
-            if (root->value.first == key) {
-                return std::make_pair(iterator(root), false);
+        if (!_root) {
+            _root = _allocator.allocate(1);
+            _allocator.construct(_root, key, value);
+            ++_treeSize;
+            return std::make_pair(iterator(_root), true);
+        }
+        if (_root) {
+            _root = splay(_root, key);
+            if (_root->_value.first == key) {
+                return std::make_pair(iterator(_root), false);
             }
         }
-        Node* cur = root;
-        if (!root) {
-            root = allocator.allocate(1);
-            allocator.construct(root, key, value);
-            ++treeSize;
-            return std::make_pair(iterator(root), true);
-        }
+
+        Node* cur = _root;
         Node* prev = nullptr;
         while (cur) {
             prev = cur;
-            if(comparator(cur->value.first, key)) {
-                cur = cur->right;
+            if(_comparator(cur->_value.first, key)) {
+                cur = cur->_right;
             } else {
-                cur = cur->left;
+                cur = cur->_left;
             }
         }
-        cur = allocator.allocate(1);
-        allocator.construct(cur, key, value);
+        cur = _allocator.allocate(1);
+        _allocator.construct(cur, key, value);
         if(nullptr == prev) {
-            root = cur;
-        } else if(comparator(prev->value.first, cur->value.first)) {
-            prev->right = cur;
+            _root = cur;
+        } else if(_comparator(prev->_value.first, cur->_value.first)) {
+            prev->_right = cur;
         } else {
-            prev->left = cur;
+            prev->_left = cur;
         }
-        cur->parent = prev;
-        ++treeSize;
-        root = splay(root, key);
+        cur->_parent = prev;
+        ++_treeSize;
+        _root = splay(_root, key);
         return std::make_pair(iterator(cur), true);
     }
-
     size_t erase(const Key& key) {
-        if (nullptr == root) {
+        if (nullptr == _root) {
             return 0;
         }
-        root = splay(root, key);
-        Node* erased = root;
-        if (!root->right && !root->left) {
-            allocator.destroy(root);
-            allocator.deallocate(root, 1);
-            root = nullptr;
-            --treeSize;
+        _root = splay(_root, key);
+        Node* erased = _root;
+        if (!_root->_right && !_root->_left) {
+            _allocator.destroy(_root);
+            _allocator.deallocate(_root, 1);
+            _root = nullptr;
+            --_treeSize;
             return 1;
         }
-        if (!root->left) {
-            root = root->right;
-        } else if (!root->right) {
-            root = root->left;
+        if (!_root->_left) {
+            _root = _root->_right;
+        } else if (!_root->_right) {
+            _root = _root->_left;
         } else {
-            Node* leftMax = root->left;
-            while(leftMax->right) {
-                leftMax = leftMax->right;
+            Node* leftMax = _root->_left;
+            while(leftMax->_right) {
+                leftMax = leftMax->_right;
             }
-            root = splay(root->left, leftMax->value.first);
-            root->right = erased->right;
-            root->parent = nullptr;
-            if (root->right) {
-                root->right->parent = root;
+            _root = splay(_root->_left, leftMax->_value.first);
+            _root->_right = erased->_right;
+
+            if (_root->_right) {
+                _root->_right->_parent = _root;
             }
         }
-        allocator.destroy(erased);
-        allocator.deallocate(erased, 1);
-        --treeSize;
+        _root->_parent = nullptr;
+        _allocator.destroy(erased);
+        _allocator.deallocate(erased, 1);
+        --_treeSize;
         return 1;
     }
-
+    inline iterator find(const Key& key) {
+        if (!_root) {
+            return end();
+        }
+        _root = splay(_root, key);
+        if (_root->_value.first == key) {
+            return iterator(_root);
+        }
+        return end();
+    }
     inline void clear() {
-        if (root) {
-            while (0 < erase(root->value.first))
+        if (_root) {
+            while (0 < erase(_root->_value.first))
             { ; }
         }
     }
     inline bool empty() const {
-        return root == 0;
+        return _root == 0;
     }
-    inline unsigned long size() const {
-        return treeSize;
+    inline size_t size() const {
+        return _treeSize;
     }
     inline iterator begin() noexcept {
-        Node* cur = root;
-        while (cur->left) {
-            cur = cur->left;
+        Node* cur = _root;
+        while (cur->_left) {
+            cur = cur->_left;
         }
         return iterator(cur);
     }
@@ -206,105 +226,103 @@ public:
     }
 
 private:
-    allocator_type allocator;
-    Comparator comparator;
-    unsigned long treeSize;
-    Value defaultValue;
-    Node* root;
+    allocator_type _allocator;
+    Comparator _comparator;
+    size_t _treeSize;
+    Value _defaultValue;
+    Node* _root;
 
     // right rotate subtree rooted with x
     Node* rightRotate(Node *x) {
         if (!x) {
             return nullptr;
         }
-        Node *y = x->left;
+        Node *y = x->_left;
         if (y) {
-            x->left = y->right;
-            if (y->right) {
-                y->right->parent = y;
+            x->_left = y->_right;
+            if (y->_right) {
+                y->_right->_parent = x;
             }
-            y->parent = x->parent;
+            y->_parent = x->_parent;
         }
-        if(!x->parent) {
-            root = y;
-        } else if(x == x->parent->left) {
-            x->parent->left = y;
+        if(!x->_parent) {
+            _root = y;
+        } else if(x == x->_parent->_left) {
+            x->_parent->_left = y;
         } else {
-            x->parent->right = y;
+            x->_parent->_right = y;
         }
         if(y) {
-            y->right = x;
+            y->_right = x;
         }
-        x->parent = y;
+        x->_parent = y;
         return y;
     }
-
     // left rotate subtree rooted with x
     Node* leftRotate(Node* x) {
         if (!x) {
             return nullptr;
         }
-        Node* y = x->right;
+        Node* y = x->_right;
         if(y) {
-          x->right = y->left;
-          if(y->left) {
-              y->left->parent = x;
+          x->_right = y->_left;
+          if(y->_left) {
+              y->_left->_parent = x;
           }
-          y->parent = x->parent;
+          y->_parent = x->_parent;
         }
-        if(!x->parent) {
-            root = y;
-        } else if(x == x->parent->left) {
-            x->parent->left = y;
+        if(!x->_parent) {
+            _root = y;
+        } else if(x == x->_parent->_left) {
+            x->_parent->_left = y;
         } else {
-            x->parent->right = y;
+            x->_parent->_right = y;
         }
         if(y) {
-            y->left = x;
+            y->_left = x;
         }
-        x->parent = y;
+        x->_parent = y;
         return y;
     }
-
     // if key is in tree -> put key_Node at root
     // else -> put the last accessed item at root
     Node* splay(Node* root, Key key) {
-        if (!root || root->value.first == key) {
+        if (!root || root->_value.first == key) {
             return root;
         }
         // key in left subtree
-        if (comparator(key, root->value.first)) {
-            if (!root->left) {
+        if (_comparator(key, root->_value.first)) {
+            if (!root->_left) {
                 return root;
             }
-            if (comparator(key, root->left->value.first)) {
+            if (_comparator(key, root->_left->_value.first)) {
                 // Zig-Zig (Left Left)
-                root->left->left = splay(root->left->left, key);
+                root->_left->_left = splay(root->_left->_left, key);
                 root = rightRotate(root);
-            } else if (comparator(root->left->value.first, key)) {
+            } else if (_comparator(root->_left->_value.first, key)) {
                 // Zig-Zag (Left Right)
-                root->left->right = splay(root->left->right, key);
-                if (root->left->right) {
-                    root->left = leftRotate(root->left);
+                root->_left->_right = splay(root->_left->_right, key);
+                if (root->_left->_right) {
+                    root->_left = leftRotate(root->_left);
                 }
             }
-            return (!root->left) ? root : rightRotate(root);
+            return (!root->_left) ? root : rightRotate(root);
         } else /* key in right subtree */ {
-            if (!root->right) {
+            if (!root->_right) {
                 return root;
             }
-            if (comparator(key, root->right->value.first)) {
+            if (_comparator(key, root->_right->_value.first)) {
                 // Zag-Zig (Right Left)
-                root->right->left = splay(root->right->left, key);
-                if (root->right->left) {
-                    root->right = rightRotate(root->right);
+                root->_right->_left = splay(root->_right->_left, key);
+                if (root->_right->_left) {
+                    root->_right = rightRotate(root->_right);
                 }
-            } else if (root->right->value.first < key) {
+            } else if (root->_right->_value.first < key) {
                 // Zag-Zag (Right Right)
-                root->right->right = splay(root->right->right, key);
+                root->_right->_right = splay(root->_right->_right, key);
                 root = leftRotate(root);
             }
-            return (!root->right) ? root : leftRotate(root);
+            return (!root->_right) ? root : leftRotate(root);
         }
     }
 };

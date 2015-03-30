@@ -7,12 +7,14 @@
 
 class Timer {
 public:
-    Timer(const std::string& _title);
+    Timer();
     ~Timer();
-
+    void start();
+    void stop();
+    std::chrono::duration<size_t>::rep getDuration();
 private:
-    std::string title;
-    std::chrono::steady_clock::time_point start;
+    std::chrono::steady_clock::time_point _start;
+    std::chrono::steady_clock::time_point _end;
 };
 
 #endif // TIMER_H

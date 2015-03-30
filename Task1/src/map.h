@@ -17,19 +17,20 @@ public:
     typedef Allocator allocator_type;
     typedef Comparator comparator_type;
     typedef typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::iterator iterator;
+//    typedef const typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::iterator const_iterator;
 
-    Map() : tree (std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>())
+    Map() : _tree (std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>())
     {}
-    Map(const Map& other) {
+    Map(const Map& other) : _tree (std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>()) {
         insert(other.begin(), other.end());
     }
-    Map(Map&& other) : tree(other.tree) {
-        other.tree = nullptr;
+    Map(Map&& other) : _tree(other._tree) {
+        other._tree = nullptr;
     }
     Map& operator=(const Map& other) {
         if (*this != other) {
-            if (tree) {
-                tree->clear();
+            if (_tree) {
+                _tree->clear();
             }
             insert(other.begin(), other.end());
         }
@@ -37,45 +38,49 @@ public:
     }
     Map& operator=(Map&& other) {
         if (*this != other) {
-            std::swap(tree, other.tree);
+            std::swap(_tree, other._tree);
         }
         return *this;
     }
     ~Map() {
-        if (tree) {
+        if (_tree) {
             clear();
         }
     }
 
     inline Value& operator[](const Key& key) {
-        std::pair<iterator, bool> insertResult = tree->insert(key);
+        std::pair<iterator, bool> insertResult = _tree->insert(key);
         return (*(insertResult.first)).second;
     }
     inline Value& operator[](Key&& key) {
         Key keyCopy;
         std::swap(key, keyCopy);
-        std::pair<iterator, bool> insertResult = tree->insert(keyCopy);
+        std::pair<iterator, bool> insertResult = _tree->insert(keyCopy);
         return (*(insertResult.first)).second;
     }
     inline iterator begin() noexcept {
-        return tree->begin();
+        return _tree->begin();
     }
     inline iterator end() noexcept {
-        return tree->end();
+        return _tree->end();
     }
-
+    inline iterator begin() const noexcept {
+        return _tree->begin();
+    }
+    inline iterator end() const noexcept {
+        return _tree->end();
+    }
     inline bool empty() const noexcept {
-        return tree->empty();
+        return _tree->empty();
     }
-    inline int size() const noexcept {
-        return tree->size();
+    inline size_t size() const noexcept {
+        return _tree->size();
     }
-
     inline void clear() noexcept {
-        tree->clear();
+        _tree->clear();
     }
     inline std::pair<iterator, bool> insert(const value_type& pair) {
-        return tree->insert(pair.first, pair.second);
+        return _tree->insert(pair.first, pair.second);
     }
     template<class InputIt>
     void insert(InputIt first, InputIt last) {
@@ -85,14 +90,20 @@ public:
     }
     template <class... Args>
     inline std::pair<iterator, bool> emplace(Args&&... args) {
-        return tree->insert(std::forward<Args>(args)...);
+        return _tree->insert(std::forward<Args>(args)...);
     }
     inline size_t erase(const Key& key) {
-        return tree->erase(key);
+        return _tree->erase(key);
     }
+    inline iterator find(const key_type& key) {
+        return _tree->find(key);
+    }
+//    inline const_iterator find(const key_type& key) const {
+//        return _tree->find(key);
+//    }
 
 private:
-    std::shared_ptr<SplayTree<Key, Value, Comparator, Allocator>> tree;
+    std::shared_ptr<SplayTree<Key, Value, Comparator, Allocator>> _tree;
 };
 
 #endif // MAP_H
