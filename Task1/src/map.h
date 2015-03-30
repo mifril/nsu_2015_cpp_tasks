@@ -17,7 +17,7 @@ public:
     typedef Allocator allocator_type;
     typedef Comparator comparator_type;
     typedef typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::iterator iterator;
-//    typedef const typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::iterator const_iterator;
+    typedef typename SplayTree<key_type, mapped_type, comparator_type, allocator_type>::const_iterator const_iterator;
 
     Map() : _tree (std::make_shared<SplayTree<Key, Value, Comparator, Allocator>>())
     {}
@@ -64,11 +64,17 @@ public:
     inline iterator end() noexcept {
         return _tree->end();
     }
-    inline iterator begin() const noexcept {
-        return _tree->begin();
+    inline const_iterator begin() const noexcept {
+        return _tree->cbegin();
     }
-    inline iterator end() const noexcept {
-        return _tree->end();
+    inline const_iterator end() const noexcept {
+        return _tree->cend();
+    }
+    inline const_iterator cbegin() const noexcept {
+        return _tree->cbegin();
+    }
+    inline const_iterator cend() const noexcept {
+        return _tree->cend();
     }
     inline bool empty() const noexcept {
         return _tree->empty();
@@ -98,9 +104,9 @@ public:
     inline iterator find(const key_type& key) {
         return _tree->find(key);
     }
-//    inline const_iterator find(const key_type& key) const {
-//        return _tree->find(key);
-//    }
+    inline const_iterator find(const key_type& key) const {
+        return _tree->find(key);
+    }
 
 private:
     std::shared_ptr<SplayTree<Key, Value, Comparator, Allocator>> _tree;

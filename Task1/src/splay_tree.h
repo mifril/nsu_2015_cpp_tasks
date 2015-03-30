@@ -23,7 +23,8 @@ private:
     };
 
 public:
-    class TreeIterator : public std::iterator<std::forward_iterator_tag, value_type> {
+    template<class T>
+    class TreeIterator : public std::iterator<std::forward_iterator_tag, T> {
     public:
         TreeIterator() : _cur(nullptr)
         {}
@@ -90,14 +91,14 @@ public:
         bool operator!=(const TreeIterator& other) const {
             return _cur != other._cur;
         }
-        value_type& operator*() {
+        T& operator*() {
             if (_cur) {
                 return _cur->_value;
             } else {
                 throw new std::out_of_range("Iterator is out of range");
             }
         }
-        value_type* operator->() {
+        T* operator->() {
             if (_cur) {
                 return &(_cur->_value);
             } else {
@@ -108,7 +109,8 @@ public:
         Node* _cur;
     };
 
-    typedef TreeIterator iterator;
+    typedef TreeIterator<value_type> iterator;
+    typedef TreeIterator<const value_type> const_iterator;
     typedef typename Allocator::template rebind<Node>::other allocator_type;
 
     SplayTree() : _root(nullptr), _treeSize(0), _allocator(), _defaultValue()
@@ -223,6 +225,16 @@ public:
     }
     inline iterator end() noexcept {
         return iterator();
+    }
+    inline const_iterator cbegin() const noexcept {
+        Node* cur = _root;
+        while (cur->_left) {
+            cur = cur->_left;
+        }
+        return const_iterator(cur);
+    }
+    inline const_iterator cend() const noexcept {
+        return const_iterator();
     }
 
 private:
