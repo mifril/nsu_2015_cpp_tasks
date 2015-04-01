@@ -1,3 +1,7 @@
+Splay Tree Map
+=============
+Map implementation using splay tree
+
 Build
 ==============
 Build map_splay_tree + unit_tests + gtest + measure coverage
