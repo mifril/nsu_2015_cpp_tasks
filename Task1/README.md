@@ -4,9 +4,10 @@ Build map_splay_tree + unit_tests + gtest + measure coverage
 --------------
 1. cmake -G "<your_platform>"
 2. make
-3. make coverage, if you want measure tests coverage
+3. make coverage (if you want measure tests code coverage)
 
 Notes:
+
 1. All output files will be in build/
 2. Coverage info will be in coverage/. Open coverage/index.html, if you want to see detailed information
 3. gtest may compile with warnings (g++ bug)
@@ -14,13 +15,15 @@ Notes:
 
 Build performance test
 --------------
-cd tests/performance and run cmake -G "<your_platform>"
-
-make
+1. cd tests/performance
+2. cmake -G "<your_platform>"
+3. make
 
 If your want build only map_splay_tree library
 --------------
-go to src/ and run cmake
+1. cd src/
+2. cmake -G "<your_platform>"
+3. make
 
 Run
 ==============
