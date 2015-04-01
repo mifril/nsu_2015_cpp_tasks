@@ -110,7 +110,7 @@ public:
     }
     template<class U, class... Args >
     inline void construct(U* p, Args&&... args ) {
-        new (static_cast<void*>(p)) value_type(args...);
+        new (static_cast<void*>(p)) value_type(std::forward<Args>(args)...);
     }
     template<class U>
     inline void destroy(U* p) {

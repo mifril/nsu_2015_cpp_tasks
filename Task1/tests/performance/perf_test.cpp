@@ -39,13 +39,15 @@ void TestFindMap(Map& map, int n, Timer& timer) {
 
 int main() {
     std::map<int, int> StdMapDefaultAll;
+	std::map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > StdMapMyAll;
     Map<int, int> MyMapDefaultAll;
     Map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > MyMapMyAll;
 
-    int N = 100000;
-    int experimentsNumber = 3;
+    int N = 1000000;
+    int experimentsNumber = 5;
     Timer timer;
 
+	std::cout << "Test for " << N << " elements" << std::endl;
     size_t time_insert = 0;
     size_t time_find = 0;
     for (int i = 0; i < experimentsNumber; ++i) {
@@ -59,6 +61,23 @@ int main() {
     time_find /= experimentsNumber;
     std::cout << "std::map with default allocator (avg insert time): " << time_insert << " ms" << std::endl;
     std::cout << "std::map with default allocator (avg find time): " << time_find << " ms" << std::endl;
+	std::cout << std::endl;
+
+
+	time_insert = 0;
+	time_find = 0;
+	for (int i = 0; i < experimentsNumber; ++i) {
+		TestInsertMap(StdMapMyAll, N, timer);
+		time_insert += timer.getDuration();
+		TestFindMap(StdMapMyAll, N, timer);
+		time_find += timer.getDuration();
+		StdMapMyAll.clear();
+	}
+	time_insert /= experimentsNumber;
+	time_find /= experimentsNumber;
+	std::cout << "std::map with my allocator (avg insert time): " << time_insert << " ms" << std::endl;
+	std::cout << "std::map with my allocator (avg find time): " << time_find << " ms" << std::endl;
+	std::cout << std::endl;
 
 
     time_insert = 0;
@@ -72,8 +91,9 @@ int main() {
     }
     time_insert /= experimentsNumber;
     time_find /= experimentsNumber;
-    std::cout << "my Map with default allocator (avg insert time): " << time_insert << " ms" << std::endl;
-    std::cout << "my Map with default allocator (avg find time): " << time_find << " ms" << std::endl;
+    std::cout << "Splay Tree Map with default allocator (avg insert time): " << time_insert << " ms" << std::endl;
+    std::cout << "Splay Tree Map with default allocator (avg find time): " << time_find << " ms" << std::endl;
+	std::cout << std::endl;
 
 
     time_insert = 0;
@@ -87,8 +107,9 @@ int main() {
     }
     time_insert /= experimentsNumber;
     time_find /= experimentsNumber;
-    std::cout << "my Map with my allocator (avg insert time): " << time_insert << " ms" << std::endl;
-    std::cout << "my Map with my allocator (avg find time): " << time_find << " ms" << std::endl;
+    std::cout << "Splay Tree Map with my allocator (avg insert time): " << time_insert << " ms" << std::endl;
+    std::cout << "Splay Tree Map with my allocator (avg find time): " << time_find << " ms" << std::endl;
+	std::cout << std::endl;
 
     return 0;
 }

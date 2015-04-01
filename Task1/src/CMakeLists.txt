@@ -9,5 +9,5 @@ if(UNIX)
     set(LDADD ${LDADD} "-lpthread" "-Wall" "-Wextra")
 endif()
 
-add_library(map_splay_tree SHARED ${SRC_LIST})
+add_library(map_splay_tree STATIC ${SRC_LIST})
 
