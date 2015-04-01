@@ -343,6 +343,12 @@ TEST_F(MapTest, MyAllocatorManyElementsTest) {
     ASSERT_EQ(count, map.size());
 }
 
+TEST_F(MapTest, AllocatorValgrindTest) {
+    MapAllocator<int> all;
+    int *p = all.allocate(10);
+    all.deallocate(p, 10);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

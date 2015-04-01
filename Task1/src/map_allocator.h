@@ -27,10 +27,8 @@ public:
             Link* next;
         };
         struct Chunk {
-            enum {
-                size = 8 * 1024 - 16
-            };
-            char mem[size] ;
+            static const size_t size = 8 * 1024 - 16;
+            char memory[size] ;
             Chunk* next;
         };
         Chunk* _chunks;
@@ -44,13 +42,13 @@ public:
             Chunk* n = new Chunk();
             n->next = _chunks;
             _chunks = n;
-            const int nelem = Chunk::size / _element_size;
-            char* start = n->mem;
-            char* last = &start[(nelem - 1) * _element_size] ;
+            const int elementsNumber = Chunk::size / _element_size;
+            char* start = n->memory;
+            char* last = &start[(elementsNumber - 1) * _element_size] ;
             for (char* p = start; p < last; p += _element_size) {
                 reinterpret_cast<Link*>(p)->next = reinterpret_cast<Link*>(p + _element_size) ;
             }
-            reinterpret_cast<Link*> (last)->next = 0;
+            reinterpret_cast<Link*>(last)->next = 0;
             _head = reinterpret_cast<Link*>(start) ;
         }
 
@@ -66,18 +64,32 @@ public:
                 delete p;
             }
         }
-        inline void* alloc() {
-            if(!_head) {
-                grow();
+        inline void* alloc(const size_t n) {
+            Link* initial;
+            for (int i = 0; i < n; ++i) {
+                if(!_head) {
+                    grow();
+                }
+                Link* p = _head;
+                _head = p->next;
+                if (0 == i) {
+                    initial = p;
+                }
             }
-            Link* p = _head;
-            _head = p->next;
-            return p;
+            return initial;
         }
         inline void free(void* b) {
-            Link* p = static_cast<Link*> (b);
+            Link* p = static_cast<Link*>(b);
             p->next = _head;
             _head = p;
+        }
+        inline void free(void* b, const size_t n) {
+            Link* initial = static_cast<Link*>(b);
+            for (int i = 0; i < n; ++i) {
+                Link* cur = initial + i;
+                cur->next = _head;
+                _head = cur;
+            }
         }
     };
 
@@ -96,21 +108,18 @@ public:
         return &x;
     }
     inline pointer allocate(size_t n, const void* = 0) {
-        return static_cast<pointer>(_pool.alloc());
+        return static_cast<pointer>(_pool.alloc(n));
     }
     inline size_t max_size() const throw() {
         return sizeof(T);
     }
     inline void deallocate(pointer p, size_t n) {
-        if (1 == n) {
-            _pool.free(p);
-            return;
-        }
-        //TODO
+        _pool.free(p, n);
+        return;
     }
     template<class U, class... Args >
     inline void construct(U* p, Args&&... args ) {
-        new (static_cast<void*>(p)) value_type(std::forward<Args>(args)...);
+        new (static_cast<void*>(p)) U(std::forward<Args>(args)...);
     }
     template<class U>
     inline void destroy(U* p) {
@@ -119,8 +128,6 @@ public:
 
 private:
     static Pool _pool;
-    static size_t _used;
-    static size_t _size;
 };
 
 template<class T> typename MapAllocator<T>::Pool MapAllocator<T>::_pool (sizeof(T)) ;
