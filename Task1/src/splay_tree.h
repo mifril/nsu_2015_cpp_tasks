@@ -156,7 +156,7 @@ public:
         }
         cur->_parent = prev;
         ++_treeSize;
-        _root = splay(_root, key);
+//        _root = splay(_root, key);
         return std::make_pair(iterator(cur), true);
     }
     size_t erase(const Key& key) {

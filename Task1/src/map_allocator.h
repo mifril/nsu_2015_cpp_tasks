@@ -46,12 +46,12 @@ public:
             _chunks = n;
             const int nelem = Chunk::size / _element_size;
             char* start = n->mem;
-            char* last = &start[ (nelem - 1) * _element_size] ;
+            char* last = &start[(nelem - 1) * _element_size] ;
             for (char* p = start; p < last; p += _element_size) {
                 reinterpret_cast<Link*>(p)->next = reinterpret_cast<Link*>(p + _element_size) ;
             }
-            reinterpret_cast<Link*> (last) ->next = 0;
-            _head = reinterpret_cast<Link*> (start) ;
+            reinterpret_cast<Link*> (last)->next = 0;
+            _head = reinterpret_cast<Link*>(start) ;
         }
 
     public:

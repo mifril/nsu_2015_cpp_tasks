@@ -42,8 +42,8 @@ int main() {
     Map<int, int> MyMapDefaultAll;
     Map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > MyMapMyAll;
 
-    int N = 100000;
-    int experimentsNumber = 3;
+    int N = 1000000;
+    int experimentsNumber = 5;
     Timer timer;
 
     size_t time_insert = 0;
