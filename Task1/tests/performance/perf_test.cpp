@@ -15,8 +15,7 @@ void TestInsertMap(Map& map, int n, Timer& timer) {
         return;
     }
     timer.start();
-    for (size_t i = 0; i < n; ++i)
-    {
+    for (size_t i = 0; i < n; ++i) {
         map[rand()] = rand();
     }
     timer.stop();
@@ -29,8 +28,7 @@ void TestFindMap(Map& map, int n, Timer& timer) {
         return;
     }
     timer.start();
-    for (size_t i = 0; i < n; ++i)
-    {
+    for (size_t i = 0; i < n; ++i) {
         map.find(rand());
     }
     timer.stop();
@@ -39,7 +37,7 @@ void TestFindMap(Map& map, int n, Timer& timer) {
 
 int main() {
     std::map<int, int> StdMapDefaultAll;
-    std::map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > StdMapMyAll;
+//    std::map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > StdMapMyAll;
     Map<int, int> MyMapDefaultAll;
     Map<int, int, std::less<int>, MapAllocator<std::pair<int, int>> > MyMapMyAll;
 
@@ -64,7 +62,7 @@ int main() {
 	std::cout << std::endl;
 
 
-    time_insert = 0;
+   /* time_insert = 0;
     time_find = 0;
     for (int i = 0; i < experimentsNumber; ++i) {
         TestInsertMap(StdMapMyAll, N, timer);
@@ -77,7 +75,7 @@ int main() {
     time_find /= experimentsNumber;
     std::cout << "std::map with my allocator (avg insert time): " << time_insert << " ms" << std::endl;
     std::cout << "std::map with my allocator (avg find time): " << time_find << " ms" << std::endl;
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
 
     time_insert = 0;

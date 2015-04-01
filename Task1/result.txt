@@ -1,0 +1,52 @@
+1. valgrind утечек не обнаружил ни при работе юнит-тестов, ни при работе performance тестов
+
+Юнит-тесты:
+==18357== HEAP SUMMARY:
+==18357==     in use at exit: 0 bytes in 0 blocks
+==18357==   total heap usage: 10,426 allocs, 10,426 frees, 718,798 bytes allocated
+
+Performance тесты (по 100000 элементов и 3 итерации, а то долго ждать):
+==18439== HEAP SUMMARY:
+==18439==     in use at exit: 0 bytes in 0 blocks
+==18439==   total heap usage: 601,655 allocs, 601,655 frees, 35,250,456 bytes allocated
+
+2. cppcheck --enable=all выдает ошибки только на неиспользуемые функции
+
+3. Результаты performance тестов:
+
+Конфигурация 1: 
+Intel Core i5-3317U 1.70GHz
+10 Gb RAM
+Windows 8.1 x64
+
+Test for 1000000 elements
+std::map with default allocator (avg insert time): 2183 ms
+std::map with default allocator (avg find time): 2375 ms
+
+Splay Tree Map with default allocator (avg insert time): 1181 ms
+Splay Tree Map with default allocator (avg find time): 1005 ms
+
+Splay Tree Map with my allocator (avg insert time): 1052 ms
+Splay Tree Map with my allocator (avg find time): 986 ms
+
+
+Конфигурация 2: 
+Виртуалка в VMware Workstation
+784 Mb RAM
+Debian x64
+
+
+Test for 1000000 elements
+std::map with default allocator (avg insert time): 2457 ms
+std::map with default allocator (avg find time): 2042 ms
+
+Splay Tree Map with default allocator (avg insert time): 2749 ms
+Splay Tree Map with default allocator (avg find time): 2681 ms
+
+Splay Tree Map with my allocator (avg insert time): 3486 ms
+Splay Tree Map with my allocator (avg find time): 3355 ms
+
+
+Как видно, на Windows 8.1 Splay Tree контейнер показывает лучшую производительность даже с использованием std::allocator. Использование самописного аллокатора еще незначительно повышает производительность.
+На виртуалке с Debian наоборот, сильное падение при использовании Splay Tree и еще более серьезное падение при использовании самописного аллокатора. Возможно, причина в том, что это виртуалка, памяти мало, пул не влазит в оперативку и своппится. К тому же и оперативка там медленнее, как я понимаю, она тоже на диске (могу ошибаться, но task manager винды говорит, что vmware не жрет оперативку).
+
