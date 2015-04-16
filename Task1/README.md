@@ -1,10 +1,10 @@
 Splay Tree Map
 =============
-Map implementation using splay tree
+Map implementation using splay tree. Implemented for PromCPP course, NSU FIT, 8 semester, March - April 2015
 
 Build
 ==============
-Build map_splay_tree + unit_tests + gtest + measure coverage
+Build map_splay_tree library + unit_tests + gtest + measure coverage
 --------------
 1. cmake -G "<your_platform>"
 2. make
@@ -33,7 +33,7 @@ Run
 ==============
 Run all unit-tests
 --------------
-./build/task1
+./build/run_tests
 
 Run all perf-test
 --------------
