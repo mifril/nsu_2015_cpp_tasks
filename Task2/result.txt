@@ -1,0 +1,22 @@
+1. valgrind не обнаруживает проблем при работе юнит-тестов
+
+Юнит-тесты:
+==33874== HEAP SUMMARY:
+==33874==     in use at exit: 0 bytes in 0 blocks
+==33874==   total heap usage: 273 allocs, 273 frees, 51,997 bytes allocated
+==33874== 
+==33874== All heap blocks were freed -- no leaks are possible
+
+2. cppcheck --enable=all нет ошибок
+
+3. Code coverage
+
+Filename				Line Coverage	Functions coverage
+scheduled_executor.cpp	100.0%, 38/38	100.0%, 7/7
+scheduled_executor.h	100.0%, 14/14	100.0%, 3/3
+task.h					100.0%, 16/16	100.0%, 9/9
+thread_pool.cpp 		100.0%, 26/26 	100.0%,	6/6
+thread_pool.h 			100.0%,	1/1 	100.0%,	1/1
+
+Подробнее можно посмотреть в coverage/index.html, если собрать с code_coverage (см. README)
+
