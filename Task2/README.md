@@ -1,6 +1,6 @@
 Scheduled executor (C++11)
 =============
-Scheduled executor implemented for PromCPP course, NSU FIT, 8 semester, april 2015
+Scheduled executor implemented for PromCPP course, NSU FIT, 8 semester, April 2015
 
 Build
 ==============
