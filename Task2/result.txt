@@ -3,7 +3,7 @@
 Юнит-тесты:
 ==33874== HEAP SUMMARY:
 ==33874==     in use at exit: 0 bytes in 0 blocks
-==33874==   total heap usage: 273 allocs, 273 frees, 51,997 bytes allocated
+==62369==   total heap usage: 11,265 allocs, 11,265 frees, 426,986 bytes allocated
 ==33874== 
 ==33874== All heap blocks were freed -- no leaks are possible
 
