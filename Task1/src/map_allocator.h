@@ -22,36 +22,6 @@ public:
     };
 
     class Pool {
-    private:
-        struct Link {
-            Link* next;
-        };
-        struct Chunk {
-            static const size_t size = 8 * 1024 - 16;
-            char memory[size] ;
-            Chunk* next;
-        };
-        Chunk* _chunks;
-        const size_t _element_size;
-        Link* _head;
-
-        Pool(Pool&) = delete;
-        void operator=(Pool&) = delete;
-
-        void grow() {
-            Chunk* n = new Chunk();
-            n->next = _chunks;
-            _chunks = n;
-            const int elementsNumber = Chunk::size / _element_size;
-            char* start = n->memory;
-            char* last = &start[(elementsNumber - 1) * _element_size] ;
-            for (char* p = start; p < last; p += _element_size) {
-                reinterpret_cast<Link*>(p)->next = reinterpret_cast<Link*>(p + _element_size) ;
-            }
-            reinterpret_cast<Link*>(last)->next = 0;
-            _head = reinterpret_cast<Link*>(start) ;
-        }
-
     public:
         Pool(size_t element_size) : _element_size(element_size < sizeof(Link) ? sizeof(Link) : element_size),
             _head (nullptr), _chunks (nullptr)
@@ -63,6 +33,15 @@ public:
                 n = n->next;
                 delete p;
             }
+        }
+
+        inline void* alloc() {
+            if(!_head) {
+                grow();
+            }
+            Link* p = _head;
+            _head = p->next;
+            return p;
         }
         inline void* alloc(const size_t n) {
             Link* initial;
@@ -91,6 +70,36 @@ public:
                 _head = cur;
             }
         }
+
+    private:
+        struct Link {
+            Link* next;
+        };
+        struct Chunk {
+            static const size_t size = 8 * 1024 - 16;
+            char memory[size];
+            Chunk* next;
+        };
+        Chunk* _chunks;
+        const size_t _element_size;
+        Link* _head;
+
+        Pool(Pool&) = delete;
+        void operator=(Pool&) = delete;
+
+        void grow() {
+            Chunk* n = new Chunk();
+            n->next = _chunks;
+            _chunks = n;
+            const int elementsNumber = Chunk::size / _element_size;
+            char* start = n->memory;
+            char* last = &start[(elementsNumber - 1) * _element_size] ;
+            for (char* p = start; p < last; p += _element_size) {
+                reinterpret_cast<Link*>(p)->next = reinterpret_cast<Link*>(p + _element_size) ;
+            }
+            reinterpret_cast<Link*>(last)->next = nullptr;
+            _head = reinterpret_cast<Link*>(start);
+        }
     };
 
     MapAllocator()
@@ -108,13 +117,20 @@ public:
         return &x;
     }
     inline pointer allocate(size_t n, const void* = 0) {
+        if (1 == n) {
+            return static_cast<pointer>(_pool.alloc());
+        }
         return static_cast<pointer>(_pool.alloc(n));
     }
     inline size_t max_size() const throw() {
         return sizeof(T);
     }
     inline void deallocate(pointer p, size_t n) {
-        _pool.free(p, n);
+        if (1 == n) {
+            _pool.free(p);
+        } else {
+            _pool.free(p, n);
+        }
         return;
     }
     template<class U, class... Args >

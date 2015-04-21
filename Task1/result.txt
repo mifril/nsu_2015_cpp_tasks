@@ -54,21 +54,24 @@ Debian 8.0 x64
 
 Собрано g++ без оптимизаций
 
-Test for 1000000 elements
-std::map with default allocator (avg insert time): 2457 ms
-std::map with default allocator (avg find time): 2042 ms
+Test for 100000 elements
+std::map with default allocator (avg insert time): 156 ms
+std::map with default allocator (avg find random elements time): 113 ms
+std::map with default allocator (avg find several elements time): 286 ms
 
-Splay Tree Map with default allocator (avg insert time): 2749 ms
-Splay Tree Map with default allocator (avg find time): 2681 ms
+Splay Tree Map with default allocator (avg insert time): 148 ms
+Splay Tree Map with default allocator (avg find random time): 137 ms
+Splay Tree Map with default allocator (avg find several elements time): 22 ms
 
-Splay Tree Map with my allocator (avg insert time): 3486 ms
-Splay Tree Map with my allocator (avg find time): 3355 ms
+Splay Tree Map with my allocator (avg insert time): 193 ms
+Splay Tree Map with my allocator (avg find random time): 176 ms
+Splay Tree Map with my allocator (avg find several elements time): 20 ms
 
 
-Как видно, на Windows 8.1 Splay Tree Map показывает лучшую производительность даже с использованием std::allocator.
+Как видно, на Windows 8.1 SplayTreeMap превосходит std::map в 2 раза даже с использованием std::allocator.
 Использование самописного аллокатора еще незначительно повышает производительность.
-На виртуалке с Debian наоборот, сильное падение при использовании Splay Tree и еще более серьезное падение при использовании самописного аллокатора.
-Возможно, причина в том, что это виртуалка, следовательно сама по себе малопроизводительна.
-Возможно, пул не влазит в оперативку и своппится.
-Возможно, на винде просто плохо реализованы std::map или менеджер памяти.
+
+На виртуалке с Debian, при случайной вставке заметно улучшение производительности у SplayTreeMap, но при использовании своего аллокатора заметно падение.
+При случайном поиске SplayTreeMap проигрывает std::map.
+При длительном поиске нескольких элементов (т.е. мы последовательно ищем эти элементы в течение 100000 итераций), которые точно есть в map, SplayTreeMap быстрее std::map на порядок. Свой аллокатор так же немного улучшает производительность. Причина в том, что контейнер SplayTree спроектирован специально для подобных случаев.
 

@@ -113,7 +113,7 @@ public:
     typedef TreeIterator<const value_type> const_iterator;
     typedef typename Allocator::template rebind<Node>::other allocator_type;
 
-    SplayTree() : _root(nullptr), _treeSize(0), _allocator(), _defaultValue()
+    SplayTree() : _root(nullptr), _treeSize(0), _allocator()
     {}
     ~SplayTree() {
         if (_root) {
@@ -238,11 +238,10 @@ public:
     }
 
 private:
+    Node* _root;
+    size_t _treeSize;
     allocator_type _allocator;
     Comparator _comparator;
-    size_t _treeSize;
-    Value _defaultValue;
-    Node* _root;
 
     // right rotate subtree rooted with x
     Node* rightRotate(Node *x) {
@@ -296,7 +295,7 @@ private:
         x->_parent = y;
         return y;
     }
-    // if key is in tree -> put key_Node at root
+    // if key is in tree -> put key node at root
     // else -> put the last accessed item at root
     Node* splay(Node* root, Key key) {
         if (!root || root->_value.first == key) {
